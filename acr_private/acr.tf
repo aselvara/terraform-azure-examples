@@ -1,26 +1,22 @@
+locals {
+  virtual_network = {
+    name = "example-virtual-network-eastus"
+    resource_group = "example-network-rg-eastus"
+  }
+  location = data.azurerm_virtual_network.example.location
+}
+
+data "azurerm_virtual_network" "example" {
+  name                = local.virtual_network.name
+  resource_group_name = local.virtual_network.resource_group
+}
+
 # Azure Container Regristry
 resource "azurerm_resource_group" "example" {
-  name     = "myResourceGroup1"
-  location = "eastus"
+  name     = "myACRRg-${local.location}"
+  location = ${local.location}
 }
 
-resource "azurerm_virtual_network" "example" {
-  name                = "example-network"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-  address_space       = ["10.1.0.0/16"]
-
-  tags = {
-    environment = "Production"
-  }
-}
-
-resource "azurerm_subnet" "example" {
-  name                 = "private-subnet-1"
-  resource_group_name  = azurerm_resource_group.example.name
-  virtual_network_name = azurerm_virtual_network.example.name
-  address_prefixes     = ["10.1.1.0/24"]
-}
 
 # Private ACR
 resource "azurerm_container_registry" "example" {

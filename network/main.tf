@@ -1,31 +1,28 @@
-# Variables
-locals {
-  tags = {
+module "network" {
+  source = "../modules/virtual_network"
+
+  # creates VNet
+  name           = "example"
+  location       = "eastus"
+  resource_group = "example"
+  address_space  = ["10.0.0.0/16"]
+  tags           = {
     environment = "Production"
   }
-  location = "eastus"
+  subnets = {
+    "private_subnet_1" = {
+      name             = "private-subnet-1"
+      address_prefixes = ["10.0.2.0/24"]
+    }
+  }
 }
 
-# Resource Group for Network
-resource "azurerm_resource_group" "defaultnetwork" {
-  name     = "example-network-rg-${local.location}"
-  location = local.location
-  tags     = local.tags
+output "vnet_name" {
+    value = module.network.vnet_name
 }
-
-# Virtual network
-resource "azurerm_virtual_network" "network" {
-  name                = "example-virtual-network-${azurerm_resource_group.defaultnetwork.location}"
-  location            = azurerm_resource_group.defaultnetwork.location
-  resource_group_name = azurerm_resource_group.defaultnetwork.name
-  address_space       = ["10.0.0.0/16"]
-  tags                = local.tags
+output "vnet_rg" {
+    value = module.network.vnet_rg
 }
-
-# PrivateSubnet 1
-resource "azurerm_subnet" "example" {
-  name                 = "private-subnet-1"
-  resource_group_name  = azurerm_resource_group.defaultnetwork.name
-  virtual_network_name = azurerm_virtual_network.network.name
-  address_prefixes     = ["10.0.2.0/24"]
+output "subnet_names" {
+    value = module.network.subnet_names
 }
