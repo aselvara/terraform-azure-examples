@@ -1,4 +1,5 @@
 variable "vm_rg" {}
+variable "vm_name" {}
 variable "create_rg" {
     type = bool
 }

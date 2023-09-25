@@ -16,7 +16,7 @@ data "azurerm_virtual_network" "bastion_host" {
 # RESOURCES
 # Resource for Bastion Host
 resource "azurerm_resource_group" "bastion_host" {
-  name     = "bashtionhostRG-${local.location}"
+  name     = "RG-bastionhost-${local.location}"
   location = local.location
 }
 
@@ -31,7 +31,7 @@ resource "azurerm_subnet" "bastion_host" {
 
 # Public IP
 resource "azurerm_public_ip" "bastion_host" {
-  name                = "bastion-${local.location}"
+  name                = "PublicIP-bastion-${local.location}"
   resource_group_name = local.resource_group
   location            = local.location
   allocation_method   = "Static"
@@ -40,7 +40,7 @@ resource "azurerm_public_ip" "bastion_host" {
 
 # Bastion Host
 resource "azurerm_bastion_host" "bastion_host" {
-  name                = "examplebastion-${local.location}"
+  name                = "BastionHost-example-${local.location}"
   location            = local.location
   resource_group_name = local.resource_group
   sku                 = "Standard"

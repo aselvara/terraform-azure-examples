@@ -1,9 +1,20 @@
+data "terraform_remote_state" "network" {
+  backend = "local"
+
+  config = {
+    path = "../network/terraform.tfstate"
+  }
+}
+
 locals {
   virtual_network = {
-    name = "example-virtual-network-eastus"
-    resource_group = "example-network-rg-eastus"
+    name           = data.terraform_remote_state.network.outputs.vnet_name
+    resource_group = data.terraform_remote_state.network.outputs.vnet_rg
+    private_subnet = data.terraform_remote_state.network.outputs.subnet_names[0]
   }
-  location = data.azurerm_virtual_network.example.location
+  tags = {
+    environment = "Production"
+  }
 }
 
 data "azurerm_virtual_network" "example" {
@@ -11,47 +22,14 @@ data "azurerm_virtual_network" "example" {
   resource_group_name = local.virtual_network.resource_group
 }
 
-# Azure Container Regristry
-resource "azurerm_resource_group" "example" {
-  name     = "myACRRg-${local.location}"
-  location = ${local.location}
-}
+module "acr" {
+  source = "../modules/acr"
 
-
-# Private ACR
-resource "azurerm_container_registry" "example" {
-  name                = "myACRexample12312iik"
-  resource_group_name = azurerm_resource_group.example.name
-  location            = azurerm_resource_group.example.location
-  sku                 = "Premium"
-  admin_enabled       = false
-  public_network_access_enabled = false
-}
-
-# Private DNS Zone
-resource "azurerm_private_dns_zone" "example" {
-  name                = "privatelink.azurecr.com"
-  resource_group_name = azurerm_resource_group.example.name
-}
-
-# Private Link for ACR and add to Private DNS Zone
-resource "azurerm_private_endpoint" "acr" {
-  name                = "private_endpoint_acr"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-  subnet_id           = azurerm_subnet.example.id
-
-  private_service_connection {
-    name                           = "example-acr"
-    private_connection_resource_id = azurerm_container_registry.example.id
-    is_manual_connection           = false
-    subresource_names              = ["registry"]
-  }
-
-  private_dns_zone_group {
-    name                 = azurerm_private_dns_zone.example.name
-    private_dns_zone_ids = [
-        azurerm_private_dns_zone.example.id
-    ]
-  }
+  resource_group = "acr"
+  create_rg = true
+  location = data.azurerm_virtual_network.example.location
+  subnet_name = local.virtual_network.private_subnet
+  vnet_name = local.virtual_network.name
+  vnet_rg = local.virtual_network.resource_group
+  tags  = local.tags
 }

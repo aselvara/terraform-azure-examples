@@ -31,7 +31,8 @@ module "bastion_vm" {
   vnet_name = local.virtual_network.name
   vnet_rg =  local.virtual_network.resource_group
   subnet_name = local.virtual_network.private_subnet
-  vm_rg = "bastion-VM"
-  create_rg = true
+  vm_rg = module.bastion_host.bastion_host_rg
+  create_rg = false
   tags = local.tags
+  vm_name = "BastionHost"
 }
