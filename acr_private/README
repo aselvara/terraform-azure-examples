@@ -1,2 +1,18 @@
 To create Private ACR, we need Private DNS and Private Endpoint and add them to ACR 
 
+- Following creates network, Bastion VM, Private ACR, and System Identity permission for the Bastion VM to push/pull to private ACR.
+
+``` 
+source .env
+cd virtual_network
+terraform init
+terraform apply -auto-approve
+
+cd ../bastion_host
+terraform init
+terraform apply -auto-approve
+
+cd ../acr_private
+terraform init
+terraform apply -auto-approve
+```
