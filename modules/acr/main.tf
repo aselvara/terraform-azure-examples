@@ -18,7 +18,7 @@ resource "azurerm_resource_group" "acr" {
 # Private ACR
 resource "azurerm_container_registry" "acr" {
   name                = "myACRexample12312iik"
-  resource_group_name = local.resource_group
+  resource_group_name = local.create_rg ? azurerm_resource_group.acr[0].name : local.resource_group
   location            = local.location
   sku                 = "Premium"
   admin_enabled       = false
@@ -30,14 +30,14 @@ resource "azurerm_container_registry" "acr" {
 # Private DNS Zone for ACR azurecr.io
 resource "azurerm_private_dns_zone" "acr" {
   name                = "privatelink.azurecr.io"
-  resource_group_name = local.resource_group
+  resource_group_name = local.create_rg ? azurerm_resource_group.acr[0].name : local.resource_group
   tags = local.tags
 }
 
 # Adding ACR Private DNS Zone to VNET Link for auto resolution
 resource "azurerm_private_dns_zone_virtual_network_link" "acr" {
   name                  = "acr_private_dns_virtual_link"
-  resource_group_name   = local.resource_group
+  resource_group_name   = local.create_rg ? azurerm_resource_group.acr[0].name : local.resource_group
   private_dns_zone_name = azurerm_private_dns_zone.acr.name
   virtual_network_id    = data.azurerm_virtual_network.acr.id
   registration_enabled  = false
@@ -58,7 +58,7 @@ data "azurerm_subnet" "acr" {
 resource "azurerm_private_endpoint" "acr" {
   name                = "private_endpoint_acr"
   location            = local.location
-  resource_group_name = local.resource_group
+  resource_group_name = local.create_rg ? azurerm_resource_group.acr[0].name : local.resource_group
   subnet_id           = data.azurerm_subnet.acr.id
   tags = local.tags
 

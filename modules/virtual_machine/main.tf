@@ -31,7 +31,7 @@ resource "azurerm_resource_group" "vm" {
 resource "azurerm_network_interface" "vm" {
   name                = "nic-${local.location}"
   location            = local.location
-  resource_group_name = local.create_rg ? azurerum_resource_group.vm[0].name : local.resource_group
+  resource_group_name = local.create_rg ? azurerm_resource_group.vm[0].name : local.resource_group
 
   ip_configuration {
     name                          = "internal"
@@ -43,7 +43,7 @@ resource "azurerm_network_interface" "vm" {
 ## 2. Create VM that links to Bastion Host
 resource "azurerm_linux_virtual_machine" "vm" {
   name                = "VM-${local.vm_name}-${local.location}"
-  resource_group_name = local.create_rg ? azurerum_resource_group.vm[0].name : local.resource_group
+  resource_group_name = local.create_rg ? azurerm_resource_group.vm[0].name : local.resource_group
   location            = local.location
   size                = "Standard_F2"
 
@@ -70,4 +70,8 @@ resource "azurerm_linux_virtual_machine" "vm" {
   identity {
     type = "SystemAssigned"
   }
+}
+
+output "vm_identity" {
+  value = azurerm_linux_virtual_machine.vm.identity
 }

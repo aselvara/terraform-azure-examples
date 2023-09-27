@@ -35,4 +35,9 @@ module "bastion_vm" {
   create_rg = false
   tags = local.tags
   vm_name = "BastionHost"
+  depends_on = [ module.bastion_host ]
+}
+
+output "bastion_vm_identity" {
+  value = module.bastion_vm.vm_identity
 }
