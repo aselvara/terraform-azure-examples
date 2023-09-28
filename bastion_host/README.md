@@ -33,3 +33,15 @@ terraform apply -destroy -auto-approve
  docker image pull <>
  docker image push <>
 ```
+
+### To find image for Terraform VM
+```powershell
+$location = "East US"
+Get-AzVMImagePublisher -Location $location | Select PublisherName
+
+$publisher = "Canonical"
+Get-AzVMImageOffer -Location $location -PublisherName $publisher | Select Offer
+
+$offer = "0001-com-ubuntu-minimal-jammy" # "UbuntuServer" 
+Get-AzVMImageSku -Location $location -PublisherName $publisher -Offer $offer | Select Skus
+```
